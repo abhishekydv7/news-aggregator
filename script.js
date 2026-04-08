@@ -1,5 +1,6 @@
+const API_KEY = "aa5e360422e945a8a9e592631f3b2691";
 const url =
-  "https://newsapi.org/v2/top-headlines?country=us&apiKey=aa5e360422e945a8a9e592631f3b2691";
+  `https://newsapi.org/v2/top-headlines?country=us&apiKey=${API_KEY}`;
 
 fetch(url)
 //Convert response-> JSON
