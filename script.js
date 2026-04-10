@@ -7,17 +7,29 @@ fetch(url)
 .then(response => response.json())
 //Log data
 .then(data =>{
-    console.log(data);
-    const article = data.articles[2];
-    console.log(article);
+  const container = document.getElementById("news-container"); 
+  container.innerHTML = ""; //remove prev inputs
+    data.articles.slice(0,6).forEach(article => {
 
-    document.getElementById("news-title").innerText = article.title;
-    document.getElementById("news-desc").innerText = article.description;
-    document.getElementById("news-img").innerText = article.urlToImage;
+      // create column
+      const col = document.createElement("div");
+      col.className = "col-md-4 mb-4";
+
+      //create card using innerHTML
+      col.innerHTML = `
+            <div class="card h-100">
+               <img src="${article.urlToImage}" class="card-img-top" alt = "news image">
+                <div class ="card-body">
+                        <h5 class = "card-title">${article.title}</h5>
+                        <p class="card-text">${article.description?.slice(0,100) || "No description available"}... </p>
+                        <a href= "${article.url}" target="_blank" class="btn btn-primary">
+                          Read More...
+                        </a>
+                </div>
+            </div>
+      `;
+
+      container.appendChild(col);
+    });
     
-    const img = document.getElementById("news-img");
-    console.log("img")
-
-    img.src = article.urlToImage;
-})
-
+});

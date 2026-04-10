@@ -1,5 +1,5 @@
 
-.card1 {
+.row {
     background-color : white;
     padding : 20px;
     align-items: center;
@@ -12,9 +12,28 @@
     
 }
 
-.card1 img{
+.row{
     width :100%;
     height: auto;
     object-fit:cover;
+}
+
+.card-img-top{
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-img-top:hover {
+    transform: scale(1.2);
+    transition: all ease-in-out 0.3s;
+    overflow: hidden;
+}
+
+.card{
+overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: 10px 12px 15px rebeccapurple;
 }
 
