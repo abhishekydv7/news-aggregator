@@ -1,13 +1,11 @@
 const API_KEY = "aa5e360422e945a8a9e592631f3b2691";
-const url =
-  `https://newsapi.org/v2/top-headlines?country=us&apiKey=${API_KEY}`;
 
-fetch(url)
-//Convert response-> JSON
-.then(response => response.json())
-//Log data
-.then(data =>{
-  const container = document.getElementById("news-container"); 
+function fetchNews(category = "general") {
+  const url = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${API_KEY}`;
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      const container = document.getElementById("news-container"); 
   container.innerHTML = ""; //remove prev inputs
     data.articles.slice(0,6).forEach(article => {
 
@@ -31,5 +29,17 @@ fetch(url)
 
       container.appendChild(col);
     });
-    
+  
+  })
+}
+
+const buttons = document.querySelectorAll(".category-btn");
+
+buttons.forEach(button=>{
+  button.addEventListener("click", () => {
+    const category = button.getAttribute("data-category");
+    fetchNews(category);
+  });
 });
+
+fetchNews();
