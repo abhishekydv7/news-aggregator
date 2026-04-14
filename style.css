@@ -57,3 +57,7 @@ overflow: hidden;
     gap: 30px;
 }
 
+#loader {
+    display: none;
+    text-align: center;
+}

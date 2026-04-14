@@ -12,6 +12,7 @@
         <div class="container">
             <div class="nav-left">
                 <h2>NewsApp</h2>
+                <!-- category-buttons -->
                 <div class="categories">
                     <button class="category-btn" data-category="business">Business</button>
                     <button class="category-btn" data-category="technology">Technology</button>
@@ -23,6 +24,16 @@
         </div>
     </nav>
     <div class="container">
+        <!-- search bar -->
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Search news...">
+            <button id="search-btn">Search</button>
+        </div>
+        <!-- loader -->
+        <div id="loader">
+            <h3>Loading...</h3>
+        </div>
+        <!-- Cards -->
         <div class="row" id = "news-container">
             <img class="card-img-top" id="news-img">
                 <div class="card-body">
