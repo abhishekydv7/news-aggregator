@@ -26,11 +26,11 @@
     <div class="container">
         <!-- search bar -->
         <div class="search-box">
-            <input type="text" id="search-input" placeholder="Search news...">
+            <input type="text" id="search-input" placeholder="Search news..." oninput="handleSearch(event)">
             <button id="search-btn">Search</button>
         </div>
         <!-- loader -->
-        <div id="loader">
+        <div id="loader" class="hidden">
             <h3>Loading...</h3>
         </div>
         <!-- Cards -->
