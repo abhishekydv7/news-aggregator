@@ -1,67 +1,12 @@
-
-.row {
-    background-color : white;
-    padding : 20px;
-    align-items: center;
-    width: 300px;
-   
-    border: 2px solid black;
-    margin: 50px auto;
-    text-align: center;
-    border-radius: 10px;
-    
-}
-
-.row{
-    width :100%;
-    height: auto;
-    object-fit:cover;
-}
-
-.card-img-top{
-    height: 200px;
-    object-fit: cover;
-}
-
-.card-img-top:hover {
-    transform: scale(1.2);
-    transition: all ease-in-out 0.3s;
-    overflow: hidden;
-}
-
-.card{
-overflow: hidden;
-}
-
-.card:hover {
-    box-shadow: 10px 12px 15px rebeccapurple;
-}
-
-.categories {
+/* NAVBAR */
+.navbar {
     display: flex;
-    gap: 20px;
-    margin-left: 50%;
+    align-items: center;
     justify-content: space-between;
-    width:400px;
+    padding: 15px 40px;
 }
 
-.navbar{
-    display: flex;
-    align-items: center;
-    gap: 30px;
-}
-
-.nav-left {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-}
-
-#loader {
-    display: none;
-    text-align: center;
-}
-
+/* CATEGORIES */
 .categories {
     display: flex;
     gap: 12px;
@@ -77,13 +22,37 @@ overflow: hidden;
     transition: all 0.3s ease;
 }
 
-/* Hover effect */
 .category-btn:hover {
     background-color: #000;
     color: #fff;
 }
 
 .category-btn.active {
-    background-color: #000;
-    color: #fff;
+    background-color: #007bff;
+    color: white;
+}
+
+/* CARDS */
+.card {
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 10px 12px 15px rgba(0, 0, 0, 0.2);
+    transform: scale(1.03);
+}
+
+/* IMAGE */
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* LOADER */
+#loader {
+    display: none;
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
 }
