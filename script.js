@@ -1,120 +1,126 @@
 const API_KEY = "aa5e360422e945a8a9e592631f3b2691";
 
+let debounceTimer;
+let lastQuery = "";
+
 const loader = document.getElementById("loader");
 const newsContainer = document.getElementById("news-container");
+const searchInput = document.getElementById("searchInput");
 
-function fetchNews(category = "general", query = "") {
-  loader.classList.remove("hidden");
-  newsContainer.innerHTML = "";
-
-  let url = "";
-
-  if (query) {
-    url = `https://newsapi.org/v2/everything?q=${query}&language=en&sortBy=publishedAt&pageSize=10&apiKey=${API_KEY}`;
-  } else {
-    url = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${API_KEY}`;
-  }
-
-  loader.style.display = "block";
-
-  fetch(url)
-    //CATCH API ERRORS
-    .then(response =>{
-      if(!response.ok) {
-        throw new Error("API Error");
-      }
-      return response.json();
-    })
-    .then(data => {
-      loader.classList.add("hidden");
-      loader.style.display = "none";
-      const container = document.getElementById("news-container"); 
-      container.innerHTML = ""; //remove prev inputs
-
-      //HANDLES NO RESULT
-      if(!data.articles || data.articles.length === 0) {
-        container.innerHTML = "<h3>No results found!!</h3>";
-        newsContainer.innerHTML = "<p> No News found</p>";
-        return;
-      }
-
-
-    data.articles.slice(0,6).forEach(article => {
-
-      // DIVISION OF CODE
-      const col = document.createElement("div");
-      col.className = "col-md-4 mb-4";
-
-      // CARDS FORCED CODE
-      col.innerHTML = `
-            <div class="card h-100">
-               <img src="${article.urlToImage || "https://picsum.photos/300/200"}" class="card-img-top" alt = "news image">
-                <div class ="card-body">
-                        <h5 class = "card-title">${article.title}</h5>
-                        <p class="card-text">${article.description?.slice(0, 100) || "<b>No description available</b>"}... </p>
-                        <a href= "${article.url || "#"}" target="_blank" class="btn btn-primary">
-                          Read More...
-                        </a>
-                </div>
-            </div>
-      `;
-
-      container.appendChild(col);
-    });
-  })
-  // TO CATCH ANY ERROR
-  .catch(() => {
-    loader.classList.add("hidden");
-    newsContainer.innerHTML = "<p>Something went wrong</p>";
-  })
-  .catch(error => {   
-    loader.style.display = "none";
-
-    const container = document.getElementById("news-container");
-    container.innerHTML = "<h3>Something went wrong 🚨</h3>";
-
-    console.error(error);
-  });
-}
-
-const buttons = document.querySelectorAll(".category-btn");
-
-buttons.forEach(button=>{
-  button.addEventListener("click", () => {
-    buttons.forEach(b => b.classList.remove("active"));
-    button.classList.add("active");
-
-    fetchNews(button.dataset.category);
-  });
-});
-
-fetchNews();
-
-const searchBtn = document.getElementById("search-btn");
-const searchInput = document.getElementById("search-input");
-
-searchBtn.addEventListener("click", ()=> {
-  const query = searchInput.value.trim();
-
-  if(!query) return;
-
-  fetchNews("", query);
-});
-
-searchInput.addEventListener("keypress", (e) => {
-  if(e.key === "Enter") {
-    searchBtn.click();
-  }
-
-let debounceTimer;
-
-function handleSearch(e) {
-  const query = e.target.value;
+// 🔍 SEARCH (Debounce)
+searchInput.addEventListener("input", (e) => {
+  const query = e.target.value.trim();
 
   clearTimeout(debounceTimer);
 
   debounceTimer = setTimeout(() => {
+    if (query.length < 5 || query === lastQuery) return;
+
+    lastQuery = query;
     fetchNews("", query);
-  }, 500);
+  }, 800);
+});
+
+// 📰 FETCH NEWS
+function fetchNews(category = "general", query = "") {
+  // show loader + skeleton
+  loader.style.display = "block";
+  newsContainer.innerHTML = "";
+
+  // skeleton
+  for (let i = 0; i < 6; i++) {
+    const col = document.createElement("div");
+    col.className = "col-md-4";
+
+    col.innerHTML = `
+      <div class="card h-100 custom-card">
+        <div class="skeleton skeleton-img"></div>
+        <div class="card-body">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text short"></div>
+        </div>
+      </div>
+    `;
+
+    newsContainer.appendChild(col);
+  }
+
+  // URL
+  let url = query
+    ? `https://newsapi.org/v2/everything?q=${query}&language=en&sortBy=publishedAt&pageSize=10&apiKey=${API_KEY}`
+    : `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${API_KEY}`;
+
+  fetch(url)
+    .then((response) => {
+      if (!response.ok) throw new Error("API Error");
+      return response.json();
+    })
+    .then((data) => {
+      loader.style.display = "none";
+
+      if (!data.articles || data.articles.length === 0) {
+        newsContainer.innerHTML = "<h3>No results found!!</h3>";
+        return;
+      }
+
+      // remove skeleton
+      newsContainer.innerHTML = "";
+
+      // render cards
+      data.articles.slice(0, 6).forEach((article, index) => {
+        const col = document.createElement("div");
+        col.className = "col-md-4 fade-in";
+        col.style.animationDelay = `${index * 0.1}s`;
+
+        col.innerHTML = `
+          <div class="card h-100 custom-card">
+            <img src="${article.urlToImage || "https://picsum.photos/400/250"}" 
+                 class="card-img-top">
+
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">${article.title}</h5>
+
+              <p class="card-text flex-grow-1">
+                ${article.description?.slice(0, 120) || "No description"}...
+              </p>
+
+              <a href="${article.url}" target="_blank" 
+                 class="btn btn-primary mt-auto">
+                Read More
+              </a>
+            </div>
+          </div>
+        `;
+
+        newsContainer.appendChild(col);
+      });
+    })
+    .catch((error) => {
+      loader.style.display = "none";
+      newsContainer.innerHTML = "<h3>Something went wrong 🚨</h3>";
+      console.error(error);
+    });
 }
+
+// 🚀 INITIAL LOAD
+fetchNews();
+
+// 🎯 CATEGORY BUTTONS
+document.querySelectorAll(".category-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    document
+      .querySelectorAll(".category-btn")
+      .forEach((b) => b.classList.remove("active"));
+
+    button.classList.add("active");
+    fetchNews(button.dataset.category);
+  });
+});
+
+// 🔎 SEARCH SUBMIT
+document.getElementById("searchForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const query = searchInput.value.trim();
+  fetchNews("", query);
 });
