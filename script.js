@@ -23,7 +23,6 @@ searchInput.addEventListener("input", (e) => {
 
 // 📰 FETCH NEWS
 function fetchNews(category = "general", query = "") {
-  // show loader + skeleton
   loader.style.display = "block";
   newsContainer.innerHTML = "";
 
@@ -47,9 +46,11 @@ function fetchNews(category = "general", query = "") {
   }
 
   // URL
-  let url = query
+  const originalUrl = query
     ? `https://newsapi.org/v2/everything?q=${query}&language=en&sortBy=publishedAt&pageSize=10&apiKey=${API_KEY}`
     : `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${API_KEY}`;
+
+  const url = `https://api.allorigins.win/get?url=${encodeURIComponent(originalUrl)}`;
 
   fetch(url)
     .then((response) => {
@@ -57,18 +58,19 @@ function fetchNews(category = "general", query = "") {
       return response.json();
     })
     .then((data) => {
+      const parsed = JSON.parse(data.contents);
+
       loader.style.display = "none";
 
-      if (!data.articles || data.articles.length === 0) {
+      // ✅ FIXED HERE
+      if (!parsed.articles || parsed.articles.length === 0) {
         newsContainer.innerHTML = "<h3>No results found!!</h3>";
         return;
       }
 
-      // remove skeleton
       newsContainer.innerHTML = "";
 
-      // render cards
-      data.articles.slice(0, 6).forEach((article, index) => {
+      parsed.articles.slice(0, 6).forEach((article, index) => {
         const col = document.createElement("div");
         col.className = "col-md-4 fade-in";
         col.style.animationDelay = `${index * 0.1}s`;
@@ -86,14 +88,13 @@ function fetchNews(category = "general", query = "") {
               </p>
 
               <div class="d-flex justify-content-between mt-auto gap-2">
-              <a href="${article.url}" target="_blank" 
-                 class="btn btn-primary mt-auto">
-                Read More
-              </a>
+                <a href="${article.url}" target="_blank" class="btn btn-primary">
+                  Read More
+                </a>
 
-              <button class="btn btn-light mt-2 save-btn">
-                Save
-              </button>  
+                <button class="btn btn-outline-light save-btn">
+                  Save
+                </button>
               </div>
             </div>
           </div>
@@ -101,6 +102,7 @@ function fetchNews(category = "general", query = "") {
 
         newsContainer.appendChild(col);
 
+        // save logic
         const saveBtn = col.querySelector(".save-btn");
 
         saveBtn.addEventListener("click", () => {
@@ -110,8 +112,10 @@ function fetchNews(category = "general", query = "") {
 
           localStorage.setItem("savedNews", JSON.stringify(saved));
 
-          alert("Saved!");
-        })
+          saveBtn.innerText = "Saved";
+          saveBtn.classList.remove("btn-outline-light");
+          saveBtn.classList.add("btn-success");
+        });
       });
     })
     .catch((error) => {
