@@ -85,15 +85,33 @@ function fetchNews(category = "general", query = "") {
                 ${article.description?.slice(0, 120) || "No description"}...
               </p>
 
+              <div class="d-flex justify-content-between mt-auto gap-2">
               <a href="${article.url}" target="_blank" 
                  class="btn btn-primary mt-auto">
                 Read More
               </a>
+
+              <button class="btn btn-light mt-2 save-btn">
+                Save
+              </button>  
+              </div>
             </div>
           </div>
         `;
 
         newsContainer.appendChild(col);
+
+        const saveBtn = col.querySelector(".save-btn");
+
+        saveBtn.addEventListener("click", () => {
+          let saved = JSON.parse(localStorage.getItem("savedNews")) || [];
+
+          saved.push(article);
+
+          localStorage.setItem("savedNews", JSON.stringify(saved));
+
+          alert("Saved!");
+        })
       });
     })
     .catch((error) => {
@@ -123,4 +141,63 @@ document.getElementById("searchForm").addEventListener("submit", (e) => {
   e.preventDefault();
   const query = searchInput.value.trim();
   fetchNews("", query);
+});
+
+document.getElementById("savedBtn").addEventListener("click", () => {
+  const saved = JSON.parse(localStorage.getItem("savedNews")) || [];
+
+  newsContainer.innerHTML = "";
+
+  if (saved.length === 0) {
+    newsContainer.innerHTML = "<h3> No saved articles</h3>";
+    return;
+  }
+
+  saved.forEach((article, index) => {
+    const col = document.createElement("div");
+    col.className = "col-md-4";
+
+    col.innerHTML = `
+      <div class="card h-100 custom-card">
+
+        <img src="${article.urlToImage || "https://picsum.photos/400/250"}" 
+             class="card-img-top">
+
+        <div class="card-body d-flex flex-column">
+
+          <h5 class="card-title">${article.title}</h5>
+
+          <p class="card-text flex-grow-1">
+            ${article.description?.slice(0, 120) || "No description"}...
+          </p>
+
+          <div class="d-flex justify-content-between mt-auto gap-2">
+            <a href="${article.url}" target="_blank" 
+             class="btn btn-primary mt-auto">
+            Read More
+            </a>
+
+            <button class = "btn btn-danger remove-btn">
+              Remove
+            </button>
+          </div>    
+
+        </div>
+      </div>
+    `;
+
+    newsContainer.appendChild(col);
+
+    const removeBtn = col.querySelector(".remove-btn");
+
+    removeBtn.addEventListener("click", () => {
+      let saved = JSON.parse(localStorage.getItem("savedNews")) || [];
+
+      saved.splice(index, 1);
+
+      localStorage.setItem("savedNews", JSON.stringify(saved));
+
+      document.getElementById("savedBtn").click();
+    })
+  });
 });
