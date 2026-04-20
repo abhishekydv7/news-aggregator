@@ -5,7 +5,7 @@ const searchInput = document.getElementById("searchInput");
 let debounceTimer;
 let lastQuery = "";
 
-// 🔍 SEARCH
+//  SEARCH
 searchInput.addEventListener("input", (e) => {
   const query = e.target.value.trim();
 
@@ -19,7 +19,7 @@ searchInput.addEventListener("input", (e) => {
   }, 600);
 });
 
-// 📰 FETCH NEWS (via Netlify function)
+//  FETCH NEWS (via Netlify function)
 function fetchNews(category = "general", query = "") {
   loader.style.display = "block";
   newsContainer.innerHTML = "";
@@ -43,7 +43,7 @@ function fetchNews(category = "general", query = "") {
     newsContainer.appendChild(col);
   }
 
-  // 👇 CALL NETLIFY FUNCTION (NOT GNEWS DIRECTLY)
+  //  CALL NETLIFY FUNCTION (NOT GNEWS DIRECTLY)
   const url = `/.netlify/functions/news?category=${category}&query=${query}`;
 
   fetch(url)
@@ -110,10 +110,10 @@ function fetchNews(category = "general", query = "") {
     });
 }
 
-// 🚀 INITIAL LOAD
+//  INITIAL LOAD
 fetchNews();
 
-// 🎯 CATEGORY
+//  CATEGORY
 document.querySelectorAll(".category-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document
@@ -125,13 +125,13 @@ document.querySelectorAll(".category-btn").forEach((btn) => {
   });
 });
 
-// 🔎 SUBMIT
+//  SUBMIT
 document.getElementById("searchForm").addEventListener("submit", (e) => {
   e.preventDefault();
   fetchNews("", searchInput.value.trim());
 });
 
-// 💾 SAVED TAB
+//  SAVED TAB
 document.getElementById("savedBtn").addEventListener("click", () => {
   const saved = JSON.parse(localStorage.getItem("savedNews")) || [];
 
@@ -148,8 +148,10 @@ document.getElementById("savedBtn").addEventListener("click", () => {
 
     col.innerHTML = `
       <div class="card h-100 custom-card">
-        <img src="${article.image || "https://picsum.photos/400/250"}" 
-             class="card-img-top">
+        <img src="${article.image || `https://source.unsplash.com/400x250/?${article.title}`}"
+           onerror="this.src='https://source.unsplash.com/400x250/?news'"
+           class="card-img-top"
+        >
 
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">${article.title}</h5>
