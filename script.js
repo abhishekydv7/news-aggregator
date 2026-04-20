@@ -80,7 +80,7 @@ function fetchNews(category = "general", query = "") {
                   Read More
                 </a>
 
-                <button class="btn btn-outline-light save-btn">
+                <button class="btn btn-light save-btn">
                   Save
                 </button>
               </div>
