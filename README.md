@@ -1,6 +1,6 @@
 # 📰 News Aggregator App
 
-A responsive news web application that fetches real-time headlines using NewsAPI.
+A responsive news web application that fetches real-time headlines using GNews API.
 Users can browse categories, search news, and save articles for later.
 
 ---
@@ -21,7 +21,7 @@ Users can browse categories, search news, and save articles for later.
 * HTML5
 * CSS3 (Bootstrap + custom styling)
 * JavaScript (Vanilla JS)
-* NewsAPI
+* GNewsAPI
 
 ---
 
@@ -38,7 +38,7 @@ Users can browse categories, search news, and save articles for later.
 
 ## ⚙️ How It Works
 
-* Fetches news via NewsAPI
+* Fetches news via GNewsAPI
 * Dynamically renders cards using JavaScript
 * Uses localStorage to store saved articles
 * Implements debounce to reduce API calls
