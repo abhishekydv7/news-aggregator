@@ -1,27 +1,25 @@
-const API_KEY = "aa5e360422e945a8a9e592631f3b2691";
+const newsContainer = document.getElementById("news-container");
+const loader = document.getElementById("loader");
+const searchInput = document.getElementById("searchInput");
 
 let debounceTimer;
 let lastQuery = "";
 
-const loader = document.getElementById("loader");
-const newsContainer = document.getElementById("news-container");
-const searchInput = document.getElementById("searchInput");
-
-// 🔍 SEARCH (Debounce)
+// 🔍 SEARCH
 searchInput.addEventListener("input", (e) => {
   const query = e.target.value.trim();
 
   clearTimeout(debounceTimer);
 
   debounceTimer = setTimeout(() => {
-    if (query.length < 5 || query === lastQuery) return;
+    if (query.length < 3 || query === lastQuery) return;
 
     lastQuery = query;
     fetchNews("", query);
-  }, 800);
+  }, 600);
 });
 
-// 📰 FETCH NEWS
+// 📰 FETCH NEWS (via Netlify function)
 function fetchNews(category = "general", query = "") {
   loader.style.display = "block";
   newsContainer.innerHTML = "";
@@ -45,39 +43,29 @@ function fetchNews(category = "general", query = "") {
     newsContainer.appendChild(col);
   }
 
-  // URL
-  const originalUrl = query
-    ? `https://newsapi.org/v2/everything?q=${query}&language=en&sortBy=publishedAt&pageSize=10&apiKey=${API_KEY}`
-    : `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${API_KEY}`;
-
-  const url = `https://api.allorigins.win/get?url=${encodeURIComponent(originalUrl)}`;
+  // 👇 CALL NETLIFY FUNCTION (NOT GNEWS DIRECTLY)
+  const url = `/.netlify/functions/news?category=${category}&query=${query}`;
 
   fetch(url)
-    .then((response) => {
-      if (!response.ok) throw new Error("API Error");
-      return response.json();
-    })
+    .then((res) => res.json())
     .then((data) => {
-      const parsed = JSON.parse(data.contents);
-
       loader.style.display = "none";
 
-      // ✅ FIXED HERE
-      if (!parsed.articles || parsed.articles.length === 0) {
-        newsContainer.innerHTML = "<h3>No results found!!</h3>";
+      if (!data.articles || data.articles.length === 0) {
+        newsContainer.innerHTML = "<h3>No results found</h3>";
         return;
       }
 
       newsContainer.innerHTML = "";
 
-      parsed.articles.slice(0, 6).forEach((article, index) => {
+      data.articles.slice(0, 6).forEach((article, index) => {
         const col = document.createElement("div");
         col.className = "col-md-4 fade-in";
         col.style.animationDelay = `${index * 0.1}s`;
 
         col.innerHTML = `
           <div class="card h-100 custom-card">
-            <img src="${article.urlToImage || "https://picsum.photos/400/250"}" 
+            <img src="${article.image || "https://picsum.photos/400/250"}" 
                  class="card-img-top">
 
             <div class="card-body d-flex flex-column">
@@ -102,58 +90,55 @@ function fetchNews(category = "general", query = "") {
 
         newsContainer.appendChild(col);
 
-        // save logic
+        // SAVE
         const saveBtn = col.querySelector(".save-btn");
 
         saveBtn.addEventListener("click", () => {
           let saved = JSON.parse(localStorage.getItem("savedNews")) || [];
 
           saved.push(article);
-
           localStorage.setItem("savedNews", JSON.stringify(saved));
 
           saveBtn.innerText = "Saved";
-          saveBtn.classList.remove("btn-outline-light");
-          saveBtn.classList.add("btn-success");
+          saveBtn.classList.replace("btn-outline-light", "btn-success");
         });
       });
     })
-    .catch((error) => {
+    .catch(() => {
       loader.style.display = "none";
       newsContainer.innerHTML = "<h3>Something went wrong 🚨</h3>";
-      console.error(error);
     });
 }
 
 // 🚀 INITIAL LOAD
 fetchNews();
 
-// 🎯 CATEGORY BUTTONS
-document.querySelectorAll(".category-btn").forEach((button) => {
-  button.addEventListener("click", () => {
+// 🎯 CATEGORY
+document.querySelectorAll(".category-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
     document
       .querySelectorAll(".category-btn")
       .forEach((b) => b.classList.remove("active"));
 
-    button.classList.add("active");
-    fetchNews(button.dataset.category);
+    btn.classList.add("active");
+    fetchNews(btn.dataset.category);
   });
 });
 
-// 🔎 SEARCH SUBMIT
+// 🔎 SUBMIT
 document.getElementById("searchForm").addEventListener("submit", (e) => {
   e.preventDefault();
-  const query = searchInput.value.trim();
-  fetchNews("", query);
+  fetchNews("", searchInput.value.trim());
 });
 
+// 💾 SAVED TAB
 document.getElementById("savedBtn").addEventListener("click", () => {
   const saved = JSON.parse(localStorage.getItem("savedNews")) || [];
 
   newsContainer.innerHTML = "";
 
   if (saved.length === 0) {
-    newsContainer.innerHTML = "<h3> No saved articles</h3>";
+    newsContainer.innerHTML = "<h3>No saved articles</h3>";
     return;
   }
 
@@ -163,45 +148,35 @@ document.getElementById("savedBtn").addEventListener("click", () => {
 
     col.innerHTML = `
       <div class="card h-100 custom-card">
-
-        <img src="${article.urlToImage || "https://picsum.photos/400/250"}" 
+        <img src="${article.image || "https://picsum.photos/400/250"}" 
              class="card-img-top">
 
         <div class="card-body d-flex flex-column">
-
           <h5 class="card-title">${article.title}</h5>
 
           <p class="card-text flex-grow-1">
             ${article.description?.slice(0, 120) || "No description"}...
           </p>
 
-          <div class="d-flex justify-content-between mt-auto gap-2">
-            <a href="${article.url}" target="_blank" 
-             class="btn btn-primary mt-auto">
-            Read More
+          <div class="d-flex justify-content-between mt-auto">
+            <a href="${article.url}" target="_blank" class="btn btn-primary">
+              Read More
             </a>
 
-            <button class = "btn btn-danger remove-btn">
-              Remove
-            </button>
-          </div>    
-
+            <button class="btn btn-danger remove-btn">Remove</button>
+          </div>
         </div>
       </div>
     `;
 
     newsContainer.appendChild(col);
 
-    const removeBtn = col.querySelector(".remove-btn");
-
-    removeBtn.addEventListener("click", () => {
-      let saved = JSON.parse(localStorage.getItem("savedNews")) || [];
-
-      saved.splice(index, 1);
-
-      localStorage.setItem("savedNews", JSON.stringify(saved));
+    col.querySelector(".remove-btn").addEventListener("click", () => {
+      let updated = JSON.parse(localStorage.getItem("savedNews")) || [];
+      updated.splice(index, 1);
+      localStorage.setItem("savedNews", JSON.stringify(updated));
 
       document.getElementById("savedBtn").click();
-    })
+    });
   });
 });
